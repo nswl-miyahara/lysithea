@@ -7,7 +7,8 @@
 
 2. Scriptの設定
 - Chrome拡張機能 > ScriptAutoRunner > オプション  
-![image](https://user-images.githubusercontent.com/121376398/211330489-57b8712c-7d4b-4cd6-a48d-ec85780d6d85.png)
+![image](https://user-images.githubusercontent.com/121376398/211330489-57b8712c-7d4b-4cd6-a48d-ec85780d6d85.png)  
+
 - [こちらのソースコード](https://raw.githubusercontent.com/nswl-miyahara/lysithea/master/dist/index.js)をコピーして、以下にペースト。
 ![image](https://user-images.githubusercontent.com/121376398/211331256-d52f38ff-0307-4ce3-a934-87a255adbab2.png)
 
