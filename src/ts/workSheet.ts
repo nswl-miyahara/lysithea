@@ -8,6 +8,7 @@ export class WorkSheet {
         let kinmuIndex: number = 0;
         let kyukaIndex: number = 0;
         let startIndex: number = 0;
+        let endIndex: number = 0;
         let lateIndex: number = 0;
         let earlyIndex: number = 0;
         let noteIndex: number = 0;
@@ -23,6 +24,8 @@ export class WorkSheet {
                     break;
                 case '始業':
                     startIndex = i;
+                case '終業':
+                    endIndex = i;
                     break;
                 case '遅刻':
                     lateIndex = i;
@@ -40,11 +43,12 @@ export class WorkSheet {
             const kinmu = table.rows[i].cells[kinmuIndex];
             const kyuka = table.rows[i].cells[kyukaIndex];
             const start = table.rows[i].cells[startIndex];
+            const end = table.rows[i].cells[endIndex];
             const late = table.rows[i].cells[lateIndex];
             const early = table.rows[i].cells[earlyIndex];
             const note = table.rows[i].cells[noteIndex];
 
-            this.rows.push(new Row(kinmu, kyuka, start, late, early, note));
+            this.rows.push(new Row(kinmu, kyuka, start, end, late, early, note));
         }
     }
 
@@ -53,6 +57,7 @@ export class WorkSheet {
             const kinmu: string = WorkSheet.getCellValue(row.kinmu);
             const kyuka: string = WorkSheet.getCellValue(row.kyuka);
             const start: string = WorkSheet.getCellValue(row.start).replace(":", "");
+            const end: string = WorkSheet.getCellValue(row.end).replace(":", "");
             const late: string = WorkSheet.getCellValue(row.late);
             const early: string = WorkSheet.getCellValue(row.early);
             const note: string = WorkSheet.getCellValue(row.note);
@@ -77,6 +82,18 @@ export class WorkSheet {
                 }
                 // 午前休みの時間が間違っている場合警告.
                 if (!WorkSheet.checkMorningOff(kinmu, start)) {
+                    WorkSheet.alert(row.kinmu, row.start)
+                }
+                // 備考欄に記載がない場合は警告.
+                if (!note) {
+                    WorkSheet.alert(row.note)
+                }
+            }
+
+            // 午後休を取得した時
+            if (kyuka.indexOf("有休（午後）") != -1) {
+                // 午後休みの時間が間違っている場合警告.
+                if (!WorkSheet.checkAfternoonOff(start, end)) {
                     WorkSheet.alert(row.kinmu, row.start)
                 }
                 // 備考欄に記載がない場合は警告.
@@ -126,12 +143,21 @@ export class WorkSheet {
 
         return diffHour === 4;
     }
+
+    static checkAfternoonOff(start: string, end: string): Boolean {
+        let startTime = new Date(1970, 1, 1, Number(start.slice(0, 2)), Number(start.slice(2, 4)), 0)
+        let endTime = new Date(1970, 1, 1, Number(end.slice(0, 2)), Number(end.slice(2, 4)), 0)
+        let diffHour = (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60)
+
+        return diffHour === 4;
+    }
 }
 
 class Row {
     private _kinmu: HTMLTableCellElement;
     private _kyuka: HTMLTableCellElement;
     private _start: HTMLTableCellElement;
+    private _end: HTMLTableCellElement;
     private _late: HTMLTableCellElement;
     private _early: HTMLTableCellElement;
     private _note: HTMLTableCellElement;
@@ -144,6 +170,9 @@ class Row {
     }
     get start() {
         return this._start;
+    }
+    get end() {
+        return this._end;
     }
     get late() {
         return this._late;
@@ -158,12 +187,14 @@ class Row {
         kinmu: HTMLTableCellElement,
         kyuka: HTMLTableCellElement,
         start: HTMLTableCellElement,
+        end: HTMLTableCellElement,
         late: HTMLTableCellElement,
         early: HTMLTableCellElement,
         note: HTMLTableCellElement) {
         this._kinmu = kinmu;
         this._kyuka = kyuka;
         this._start = start;
+        this._end = end;
         this._late = late;
         this._early = early;
         this._note = note;
